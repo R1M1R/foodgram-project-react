@@ -1,112 +1,132 @@
-# praktikum_new_diplom
+## Проект Foodgram
 
+![workflow](https://github.com/R1M1R/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
+Foodgram - продуктовый помощник с базой кулинарных рецептов. Позволяет публиковать рецепты, сохранять избранные, а также формировать список покупок для выбранных рецептов. Можно подписываться на любимых авторов.
 
+Проект доступен по [адресу](https://foodgram-esy.ddns.net)
 
-Проект foodgram  «Продуктовый помощник»: сайт,
-на котором пользователи будут публиковать рецепты,
-добавлять чужие рецепты в избранное и подписываться на публикации других авторов.
-Сервис «Список покупок» позволит пользователям создавать список продуктов,
-которые нужно купить для приготовления выбранных блюд. 
+Документация к API доступна [здесь](https://foodgram-esy.ddns.net/api/docs/)
 
-## Сайт доступен по [адресу](http://158.160.12.158/recipes)
+В документации описаны возможные запросы к API и структура ожидаемых ответов. Для каждого запроса указаны уровни прав доступа.
 
-## Технологии:
-Python 3.7, Django 2.2, DRF, Djoser, PostgreSQL, Docker
+### Технологии:
 
-![Workflow stat](https://github.com/R1M1R/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+Python 3, Django 3.2.15, Django Rest Framework 3.13.1, Docker, Gunicorn 20.1.0, NGINX, PostgreSQL, Yandex Cloud, Continuous Integration, Continuous Deployment
 
-<details>
-<summary><h2>Как запустить проект:</h2></summary>
+### Развернуть проект на удаленном сервере:
 
-### *Клонируйте репозиторий:*
+- Клонировать репозиторий:
 ```
-git@github.com:R1M1R/foodgram-project-react.git
+https://github.com/R1M1R/foodgram-project-react.git
 ```
 
-### *Установите и активируйте виртуальное окружение:*
-Win:
+- Установить на сервере Docker, Docker Compose:
+
 ```
-python -m venv venv
-venv/Scripts/activate
+sudo apt install curl                                   # установка утилиты для скачивания файлов
+curl -fsSL https://get.docker.com -o get-docker.sh      # скачать скрипт для установки
+sh get-docker.sh                                        # запуск скрипта
+sudo apt-get install docker-compose-plugin              # последняя версия docker compose
 ```
 
-Mac:
+- Скопировать на сервер файлы docker-compose.yml, nginx.conf из папки infra (команды выполнять находясь в папке infra):
+
 ```
-python3 -m venv venv
-source venv/bin/activate
+scp docker-compose.yml nginx.conf username@IP:/home/username/   # username - имя пользователя на сервере
+                                                                # IP - публичный IP сервера
 ```
 
-### *Установите зависимости из файла requirements.txt:*
+- Для работы с GitHub Actions необходимо в репозитории в разделе Secrets > Actions создать переменные окружения:
 ```
-pip install -r requirements.txt
+SECRET_KEY              # секретный ключ Django проекта
+DOCKER_PASSWORD         # пароль от Docker Hub
+DOCKER_USERNAME         # логин Docker Hub
+HOST                    # публичный IP сервера
+USER                    # имя пользователя на сервере
+PASSPHRASE              # *если ssh-ключ защищен паролем
+SSH_KEY                 # приватный ssh-ключ
+TELEGRAM_TO             # ID телеграм-аккаунта для посылки сообщения
+TELEGRAM_TOKEN          # токен бота, посылающего сообщение
+
+DB_ENGINE               # django.db.backends.postgresql
+DB_NAME                 # postgres
+POSTGRES_USER           # postgres
+POSTGRES_PASSWORD       # postgres
+DB_HOST                 # db
+DB_PORT                 # 5432 (порт по умолчанию)
 ```
 
-### *Перейдите в директорию с файлом manage.py, создайте и примените миграции (python3 для Mac):*
+- Создать и запустить контейнеры Docker, выполнить команду на сервере
+*(версии команд "docker compose" или "docker-compose" отличаются в зависимости от установленной версии Docker Compose):*
 ```
-cd backend/foodgram
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### *Создайте суперпользователя (python3 для Mac):*
-```
-python manage.py createsuperuser
+sudo docker compose up -d
 ```
 
-### *Запустите сервер (python3 для Mac):*
+- После успешной сборки выполнить миграции:
 ```
-python manage.py runserver
+sudo docker compose exec backend python manage.py migrate
 ```
 
-### *Чтобы запустить проект через докер:*
-В папке **frontend** соберите образ docker `build -t YourDockerNickname/foodgram_frontend .`
-
-В папке **infra** создайте файл **.env** и заполните его данными. Пример:
+- Создать суперпользователя:
 ```
-SECRET_KEY=YourSecretKeyFromDjangoProjectSettings
-DEBUG=True
-ALLOWED_HOSTS='*'
+sudo docker compose exec backend python manage.py createsuperuser
+```
+
+- Собрать статику:
+```
+sudo docker compose exec backend python manage.py collectstatic --noinput
+```
+
+- Наполнить базу данных содержимым из файла ingredients.json:
+```
+sudo docker compose exec backend python manage.py loaddata ingredients.json
+```
+
+- Для остановки контейнеров Docker:
+```
+sudo docker compose down -v      # с их удалением
+sudo docker compose stop         # без удаления
+```
+
+### После каждого обновления репозитория (push в ветку master) будет происходить:
+
+1. Проверка кода на соответствие стандарту PEP8 (с помощью пакета flake8)
+2. Сборка и доставка докер-образов frontend и backend на Docker Hub
+3. Разворачивание проекта на удаленном сервере
+4. Отправка сообщения в Telegram в случае успеха
+
+### Запуск проекта на локальной машине:
+
+- Клонировать репозиторий:
+```
+https://github.com/R1M1R/foodgram-project-react.git
+```
+
+- В директории infra создать файл .env и заполнить своими данными по аналогии с example.env:
+```
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=postgres
-DB_USER=postgres
-DB_PASSWORD=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 DB_HOST=db
 DB_PORT=5432
+SECRET_KEY='секретный ключ Django'
 ```
-Для работы с workflow и деплоем на сервер добавьте Github Secrets. Шаблон:
-```
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=postgres
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=db
-DB_PORT=5432
-DEBUG=True
-DOCKER_PASSWORD=YourPassword
-DOCKER_USERNAME=YourUsername
 
-USER=ServerUsername
-HOST=ServerIP
-PASSPHRASE=GitPassphrase
-SSH_KEY=SSHKey (для получения команда: cat ~/.ssh/id_rsa)
-
-TELEGRAM_TO=YourTelegramID
-TELEGRAM_TOKEN=BotToken
+- Создать и запустить контейнеры Docker, последовательно выполнить команды по созданию миграций, сбору статики, 
+созданию суперпользователя, как указано выше.
 ```
-Далее в папке **infra** запустите команду `docker-compose up --build`
-
-После сборки запустите миграции, соберите статику, создайте суперпользователя, подгрузите данные из копии бд:
+docker-compose -f docker-compose-local.yml up -d
 ```
-docker-compose exec backend python manage.py makemigrations
-docker-compose exec backend python manage.py migrate
-docker-compose exec backend python manage.py collectstatic --no-input
-docker-compose exec backend python manage.py data_csv_for_db
-docker-compose exec backend python manage.py createsuperuser
-```
-Для остановки контейнера `docker-compose down -v`
-</details>
 
 
-## Разработчик:
-[Усеинов Эмир](https://github.com/R1M1R)
+- После запуска проект будут доступен по адресу: [http://localhost/](http://localhost/)
+
+
+- Документация будет доступна по адресу: [http://localhost/api/docs/](http://localhost/api/docs/)
+
+
+### Автор backend'а:
+
+Усеинов Эмир 
