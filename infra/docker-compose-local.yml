@@ -1,4 +1,4 @@
-version: '2.6'
+version: '3.3'
 
 services:
 
@@ -24,11 +24,14 @@ services:
 
   frontend:
     image: bet315/foodgram-frontend:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
 
   nginx:
-    image: nginx:1.21.3-alpine
+    image: nginx:1.19.3
     ports:
       - "80:80"
     volumes:
