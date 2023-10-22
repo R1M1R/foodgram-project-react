@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import UniqueConstraint
+from django.db.models import UniqueConstraint, CheckConstraint, Q, F
 
 
 class User(AbstractUser):
@@ -42,8 +42,13 @@ class Subscribe(models.Model):
     class Meta:
         ordering = ['-id']
         constraints = [
-            UniqueConstraint(fields=['user', 'author'],
-                             name='unique_subscription')
+            UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription'
+            ),
+            CheckConstraint(
+                check=~Q(author=F("user")), name="\nNo self subscription\n"
+            ),
         ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
