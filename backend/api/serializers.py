@@ -13,8 +13,6 @@ from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 from users.models import Subscribe, User
 
-User = get_user_model()
-
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
@@ -34,7 +32,7 @@ class CustomUserSerializer(UserSerializer):
             return Subscribe.objects.filter(user=self.context['request'].user,
                                             author=obj).exists()
         return False
-    
+
     class Meta:
         model = User
         fields = (
@@ -77,7 +75,7 @@ class SubscribeSerializer(CustomUserSerializer):
             recipes = recipes[:int(limit)]
         serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
         return serializer.data
-    
+
     class Meta(CustomUserSerializer.Meta):
         fields = CustomUserSerializer.Meta.fields + (
             'recipes_count', 'recipes'
@@ -128,9 +126,8 @@ class RecipeReadSerializer(ModelSerializer):
         return (
             self.context.get('request').user.is_authenticated
             and Favourite.objects.filter(user=self.context['request'].user,
-                                        recipe=obj).exists()
+                                         recipe=obj).exists()
         )
-
 
     def get_is_in_shopping_cart(self, obj):
         return (
@@ -139,7 +136,7 @@ class RecipeReadSerializer(ModelSerializer):
                 user=self.context['request'].user,
                 recipe=obj).exists()
         )
-    
+
     class Meta:
         model = Recipe
         fields = (
@@ -205,7 +202,7 @@ class RecipeWriteSerializer(ModelSerializer):
                                        'Теги должны быть уникальными!'})
             tags_list.append(tag)
         return value
-    
+
     # Если блок кода завершается успешно, изменения фиксируются в базе данных.
     # Если возникает исключение, изменения откатываются.
     @transaction.atomic
@@ -244,7 +241,7 @@ class RecipeWriteSerializer(ModelSerializer):
         request = self.context.get('request')
         context = {'request': request}
         return RecipeReadSerializer(instance, context=context).data
-    
+
     class Meta:
         model = Recipe
         fields = (
