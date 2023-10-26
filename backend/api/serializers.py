@@ -26,11 +26,11 @@ class CustomUserSerializer(UserSerializer):
     is_subscribed = SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, obj):
-        if (self.context.get('request')
-           and not self.context['request'].user.is_anonymous):
-            return Subscribe.objects.filter(user=self.context['request'].user,
-                                            author=obj).exists()
-        return False
+        user = self.context['request'].user
+        return (
+            user.is_authenticated
+            and obj.subscribing.filter(user=user).exists()
+        )
 
     class Meta:
         model = User
@@ -204,7 +204,6 @@ class RecipeWriteSerializer(ModelSerializer):
 
     # Если блок кода завершается успешно, изменения фиксируются в базе данных.
     # Если возникает исключение, изменения откатываются.
-    @transaction.atomic
     def __create_ingredients_amounts(self, ingredients, recipe):
         IngredientInRecipe.objects.bulk_create(
             [IngredientInRecipe(
@@ -214,8 +213,7 @@ class RecipeWriteSerializer(ModelSerializer):
             ) for ingredient in ingredients]
         )
 
-    @transaction.atomic
-    def __create(self, validated_data):
+    def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
@@ -223,8 +221,7 @@ class RecipeWriteSerializer(ModelSerializer):
         self.create_ingredients_amounts(recipe=recipe, ingredients=ingredients)
         return recipe
 
-    @transaction.atomic
-    def __update(self, instance, validated_data):
+    def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         instance = super().update(instance, validated_data)
