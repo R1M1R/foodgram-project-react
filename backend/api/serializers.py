@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
@@ -203,6 +204,9 @@ class RecipeWriteSerializer(ModelSerializer):
 
     # Если блок кода завершается успешно, изменения фиксируются в базе данных.
     # Если возникает исключение, изменения откатываются.
+    # Он выполняет один запрос для вставки всех данных сразу.
+    # Это намного значительнее, чем любое ускорение, вызванное транзакциями.bulk_create
+    @transaction.atomic
     def __create_ingredients_amounts(self, ingredients, recipe):
         IngredientInRecipe.objects.bulk_create(
             [IngredientInRecipe(
@@ -212,6 +216,7 @@ class RecipeWriteSerializer(ModelSerializer):
             ) for ingredient in ingredients]
         )
 
+    @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -220,6 +225,7 @@ class RecipeWriteSerializer(ModelSerializer):
         self.create_ingredients_amounts(recipe=recipe, ingredients=ingredients)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
