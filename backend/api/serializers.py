@@ -205,7 +205,8 @@ class RecipeWriteSerializer(ModelSerializer):
     # Если блок кода завершается успешно, изменения фиксируются в базе данных.
     # Если возникает исключение, изменения откатываются.
     # Он выполняет один запрос для вставки всех данных сразу.
-    # Это намного значительнее, чем любое ускорение, вызванное транзакциями.bulk_create
+    # Это намного значительнее, чем любое ускорение, 
+    # вызванное транзакциями.bulk_create
     @transaction.atomic
     def __create_ingredients_amounts(self, ingredients, recipe):
         IngredientInRecipe.objects.bulk_create(
