@@ -12,7 +12,16 @@ Foodgram - продуктовый помощник с базой кулинар�
 
 ### Технологии:
 
-Python 3, Django 3.2.15, Django Rest Framework 3.13.1, Docker, Gunicorn 20.1.0, NGINX, PostgreSQL, Yandex Cloud, Continuous Integration, Continuous Deployment
+- [Python 3.10.12](https://www.python.org/)
+- [Django 3.2.3](https://www.djangoproject.com/)
+- [Django Rest Framework 3.13.1](https://www.django-rest-framework.org/)
+- [Docker](https://hub.docker.com/)
+- [Gunicorn 20.1.0](https://gunicorn.org/)
+- [Nginx 1.19.3 ](https://nginx.org/ru/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Yandex Cloud](https://cloud.yandex.ru/)
+- [Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration)
+- [Continuous Deployment](https://en.wikipedia.org/wiki/Continuous_deployment)
 
 ### Развернуть проект на удаленном сервере:
 
@@ -126,7 +135,101 @@ docker-compose -f docker-compose-local.yml up -d
 
 - Документация будет доступна по адресу: [http://localhost/api/docs/](http://localhost/api/docs/)
 
-
+## Примеры запросов
+```
+GET /api/users/
+```
+**Образец ответа**
+```json
+{
+  "count": 123,
+  "next": "http://foodgram-esy.ddns.net/api/users/?page=4",
+  "previous": "http://foodgram-esy.ddns.net/api/users/?page=2",
+  "results": [
+    {
+      "email": "user@example.com",
+      "id": 0,
+      "username": "string",
+      "first_name": "Вася",
+      "last_name": "Пупкин",
+      "is_subscribed": false
+    }
+  ]
+}
+```
+```
+POST /api/users/
+```
+**Образец ответа**
+```json
+{
+  "email": "vpupkin@yandex.ru",
+  "username": "vasya.pupkin",
+  "first_name": "Вася",
+  "last_name": "Пупкин",
+  "password": "Qwerty123"
+}
+```
+```
+GET /api/tags/
+```
+**Образец ответа**
+```json
+[
+  {
+    "id": 0,
+    "name": "Завтрак",
+    "color": "#E26C2D",
+    "slug": "breakfast"
+  }
+]
+```
+```
+GET /api/recipes/
+```
+**Образец ответа**
+```json
+{
+  "count": 123,
+  "next": "http://foodgram-esy.ddns.net/api/recipes/?page=4",
+  "previous": "http://foodgram-esy.ddns.net/api/recipes/?page=2",
+  "results": [
+    {
+      "id": 0,
+      "tags": [
+        {
+          "id": 0,
+          "name": "Завтрак",
+          "color": "#E26C2D",
+          "slug": "breakfast"
+        }
+      ],
+      "author": {
+        "email": "user@example.com",
+        "id": 0,
+        "username": "string",
+        "first_name": "Вася",
+        "last_name": "Пупкин",
+        "is_subscribed": false
+      },
+      "ingredients": [
+        {
+          "id": 0,
+          "name": "Картофель отварной",
+          "measurement_unit": "г",
+          "amount": 1
+        }
+      ],
+      "is_favorited": true,
+      "is_in_shopping_cart": true,
+      "name": "string",
+      "image": "http://foodgram-esy.ddns.net/media/recipes/images/image.jpeg",
+      "text": "string",
+      "cooking_time": 1
+    }
+  ]
+}
+```
 ### Автор backend'а:
 
-Усеинов Эмир 
+- [ Усеинов Эмир ](https://github.com/R1M1R)

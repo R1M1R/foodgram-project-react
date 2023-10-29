@@ -6,7 +6,15 @@ from .models import (Favourite, Ingredient, IngredientInRecipe, Recipe, Shopping
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id', 'author', 'added_in_favorites')
+    list_display = (
+        'name',
+        'id',
+        'author',
+        'added_in_favorites',
+        'cooking_time',
+        'text',
+        'image',
+    )
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
 
