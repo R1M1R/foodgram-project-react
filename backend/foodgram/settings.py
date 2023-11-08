@@ -11,7 +11,13 @@ SECRET_KEY = os.getenv(key='SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '158.160.12.158',
+    'localhost',
+    'backend',
+    '127.0.0.1',
+    'foodgram-esy.ddns.net',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,6 +76,10 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT')
     }
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
 }
 
 AUTH_USER_MODEL = 'users.User'
